@@ -1,0 +1,4 @@
+Login for https://fastspecfit.desi.lbl.gov/, https://data.desi.lbl.gov/desi/
+
+username: desi
+pass: 5kFibers!

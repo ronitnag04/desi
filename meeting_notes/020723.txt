@@ -1,0 +1,18 @@
+user provided list of columns (w/o knowing which table using targetid to connect tables)
+
+
+diff healpix vs tile
+if target on two diff tiles, one redshift combining tiles, and each individual tile
+
+ADD option to getredshift by targetid based on healpix or tile 
+	(also include which tile/survey/program or healpix/survery/program it was found at)
+
+ADD option to getredshift from healpix based on bright vs dark (some overlap)
+
+ADD option to get all measured redshifts, and SD, variance
+
+programs(bright, dark -- also other like backup)
+
+
+ADQL + TAP: very annoying to use, don't worry about TAP for now, maybe look into ADQL
+

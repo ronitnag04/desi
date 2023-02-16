@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  pythonapp:
+    container_name: pythonapp
+    image: pythonapp
+    build: ./docker/pythonapp
+    ports:
+      - "80:80"
+    environment:
+      - DATABASE_URL=postgresql://myuser:password@database:5432/dvdrental
+    depends_on:
+      database:
+        condition: service_started
+
+  database:
+    container_name: database
+    image: database
+    build: ./docker/database
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=myuser
+      - POSTGRES_DB=dvdrental
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}

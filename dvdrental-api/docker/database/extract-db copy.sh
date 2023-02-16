@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+	CREATE USER $POSTGRES_USER;
+	CREATE DATABASE $POSTGRES_DB;
+	GRANT ALL PRIVILEGES ON DATABASE $POSTGRES_DB TO $POSTGRES_USER;
+EOSQL
+
+
+../usr/lib/postgresql/12/bin/pg_restore -c -d $POSTGRES_DB -U $POSTGRES_USER ../dvdrental.tar

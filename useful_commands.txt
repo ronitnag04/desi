@@ -1,1 +1,2 @@
 psql -U desi -h nerscdb03.nersc.gov -d desidev (https://desi.lbl.gov/trac/wiki/DESIProductionDatabase)
+python -m pip install SomePackage

@@ -20,7 +20,8 @@ class Item(db.Model):
         self.title = title
         self.content = content
 
-db.create_all()
+with app.app_context():
+    db.create_all()
 
 @app.route('/items/<id>', methods=['GET'])
 def get_item(id):

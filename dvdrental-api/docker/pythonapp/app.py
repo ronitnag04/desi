@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
@@ -23,3 +23,4 @@ def get_customer():
         del customer.__dict__['_sa_instance_state']
         customers.append(customer.__dict__)
     return jsonify(customers)
+

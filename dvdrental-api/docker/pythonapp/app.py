@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.ext.automap import automap_base, classname_for_table
 import os
 
 app = Flask(__name__)
@@ -14,13 +14,59 @@ db = SQLAlchemy(app)
 with app.app_context():
     Base = automap_base()
     Base.prepare(db.engine, reflect=True)
+    Actor = Base.classes.actor
+    Address = Base.classes.address
+    Category = Base.classes.category
+    City = Base.classes.city
+    Country = Base.classes.country
     Customer = Base.classes.customer
+    Film = Base.classes.film
+    Film_Actor = Base.classes.film_actor
+    Film_Category = Base.classes.film_category
+    Inventory = Base.classes.inventory
+    Language = Base.classes.language
+    Payment = Base.classes.payment
+    Rental = Base.classes.rental 
+    Staff = Base.classes.staff
+    Store = Base.classes.store
+
+classMap = {'Actor':Actor, 
+            'Address':Address, 
+            'Category':Category, 
+            'City':City, 
+            'Country':Country, 
+            'Customer':Customer, 
+            'Film':Film,
+            'Film_Actor':Film_Actor,
+            'Film_Category':Film_Category,
+            'Inventory':Inventory,
+            'Language':Language,
+            'Payment':Payment,
+            'Rental': Rental,
+            'Staff':Staff,
+            'Store':Store}
+
+
+@app.route('/table/<tablename>', methods=['GET'])
+def get_table(tablename):
+    table_content = []
+    for item in db.session.query(classMap[tablename]).all():
+        del item.__dict__['_sa_instance_state']
+        table_content.append(item.__dict__)
+    return jsonify(table_content)
+
 
 @app.route('/customer', methods=['GET'])
-def get_customer():
+def get_customer_all():
     customers = []
     for customer in db.session.query(Customer).all():
         del customer.__dict__['_sa_instance_state']
         customers.append(customer.__dict__)
     return jsonify(customers)
 
+
+@app.route('/customer/<id>', methods=['GET'])
+def get_customer_by_id(id):
+    customer = db.session.query(Customer).filter_by(customer_id=id).first()
+    del customer.__dict__['_sa_instance_state']
+    return jsonify(customer.__dict__)

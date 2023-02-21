@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.automap import automap_base, classname_for_table
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy_utils import create_view
 import os
 
 app = Flask(__name__)
@@ -46,6 +47,24 @@ classMap = {'Actor':Actor,
             'Staff':Staff,
             'Store':Store}
 
+"""
+class Actor_Films(db.Model):
+    __table__ = create_view(
+        name = "actor_films",
+        selectable= db.select(Payment),
+        metadata=db.metadata
+    )
+
+
+@app.route('/view', methods=['GET'])
+def test_view():
+    view_items = []
+    for item in db.session.query(Actor_Films).all():
+        del item.__dict__['_sa_instance_state']
+        view_items.append(item.__dict__)
+    return jsonify(view_items)
+"""
+
 
 @app.route('/table/<tablename>', methods=['GET'])
 def get_table(tablename):
@@ -55,6 +74,14 @@ def get_table(tablename):
         table_content.append(item.__dict__)
     return jsonify(table_content)
 
+
+@app.route('/payments/customer/<id>', methods=['GET'])
+def get_payments_by_customer(id):
+    payments = []
+    for payment in db.session.query(Payment).filter_by(customer_id=id).all():
+        del payment.__dict__['_sa_instance_state']
+        payments.append(payment.__dict__)
+    return jsonify(payments)
 
 @app.route('/customer', methods=['GET'])
 def get_customer_all():

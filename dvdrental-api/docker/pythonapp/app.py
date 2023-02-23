@@ -47,23 +47,11 @@ classMap = {'Actor':Actor,
             'Staff':Staff,
             'Store':Store}
 
-"""
-class Actor_Films(db.Model):
-    __table__ = create_view(
-        name = "actor_films",
-        selectable= db.select(Payment),
-        metadata=db.metadata
-    )
 
-
-@app.route('/view', methods=['GET'])
-def test_view():
-    view_items = []
-    for item in db.session.query(Actor_Films).all():
-        del item.__dict__['_sa_instance_state']
-        view_items.append(item.__dict__)
-    return jsonify(view_items)
-"""
+@app.route('/return', methods=['POST'])
+def return_content():
+    body = request.get_json()
+    return body['print']
 
 
 @app.route('/table/<tablename>', methods=['GET'])

@@ -1,0 +1,31 @@
+Table Hierarchy:
+
+photometry
+	subset + info: targets 
+		subset + info: fiberassign
+		   *
+			zpix:
+			ztile:
+
+
+* tile / frame in between fiberassign and zpix/ztile
+
+exposure: spectra
+
+
+
+Unmaterialized views: 
+- Ztile + fiberasssign + targets + photometry (Take everything)
+- Zpix + fiberasssign + targets + photometry
+
+
+TODO:
+- Creating unmaterialized views that join tables (w/a columns)
+- Generic access to columns in these views
+
+
+
+Spectra is available at fuji favorited path
+experiment with accessing spectra .fits
+ (look at tutorials June2021/Intro_to_a_DESI_Release.ipynb)
+Intro_to_DESI_SV_spectra.ipynb: https://github.com/desihub/tutorials/blob/main/onskydata/Intro_to_DESI_SV_spectra.ipynb

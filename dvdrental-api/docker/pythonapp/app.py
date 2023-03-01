@@ -48,6 +48,8 @@ tableMap = {'Actor':Actor,
             'Staff':Staff,
             'Store':Store}
 
+# cv = create_view("Actor_Films", session.query(Actor, Film.title).join(Film_Actor))
+
 @app.route('/query/table/<tablename>', methods=['GET'])
 def get_table(tablename):
     if tablename not in tableMap.keys():

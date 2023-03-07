@@ -27,5 +27,5 @@ TODO:
 
 Spectra is available at fuji favorited path
 experiment with accessing spectra .fits
- (look at tutorials June2021/Intro_to_a_DESI_Release.ipynb)
+(look at tutorials June2021/Intro_to_a_DESI_Release.ipynb)
 Intro_to_DESI_SV_spectra.ipynb: https://github.com/desihub/tutorials/blob/main/onskydata/Intro_to_DESI_SV_spectra.ipynb

@@ -1,0 +1,12 @@
+targetid : DESI concept for each astronomical object
+for photometry & target tables: each targetid has its own row (w/ all diff filters stacking into one row)
+
+
+tile is single point of telescope (can overlap)
+- Tile defined with targets, program, and survey based on reasons for observing (target bitmask (bright galazy, etc))
+- same target can overlap with bright/dark program
+
+
+
+given tile id one has one survey and program, so don;t need to do all
+don't need frame info for now, just keep ztile

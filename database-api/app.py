@@ -1,49 +1,21 @@
 import os
-# from argparse import Namespace
-# from types import MethodType
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.font_manager import fontManager, FontProperties
-from sqlalchemy import __version__ as sqlalchemy_version
-from sqlalchemy import inspect
 from sqlalchemy.sql import func
-import astropy.units as u
-from astropy.constants import c as lightspeed
-from astropy.table import Table, MaskedColumn
-
+from flask import Flask, request, jsonify
+#
 # DESI software
 import sys
 software_path = os.environ['$DESI_SOFTWARE_PATH']
-sys.path.insert(0, f'{software_path}/desiutil/master/py')
-from desiutil.log import get_logger, DEBUG
-sys.path.insert(0, f'{software_path}/desitarget/master/py')
-from desitarget.targetmask import (desi_mask, mws_mask, bgs_mask)
-# from desisim.spec_qa import redshifts as dsq_z
-sys.path.insert(0, f'{software_path}/desisurvey/master/py')
-from desisurvey import __version__ as desisurvey_version
-from desisurvey.ephem import get_ephem, get_object_interpolator
-from desisurvey.utils import get_observer
-sys.path.insert(0, f'{software_path}/desispec/master/py')
-from desispec import __version__ as desispec_version
+sys.path.insert(0, f'{software_path}/desiutil/main/py')
+from desiutil.log import get_logger
+sys.path.insert(0, f'{software_path}/desispec/main/py')
 import desispec.database.redshift as db
-
-# Paths to files, etc.
-specprod = os.environ['SPECPROD'] = 'fuji'
-basedir = os.path.join(os.environ['DESI_SPECTRO_REDUX'], specprod)
-os.environ['DESISURVEY_OUTPUT'] = os.environ['SCRATCH']
-ephem = get_ephem()
-from astropy.time import Time
-from astropy.coordinates import ICRS
-workingdir = os.getcwd()
-print(workingdir)
+specprod = 'fuji'
 
 # Database Setup
 db.log = get_logger()
 postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
 
 #Flask Setup
-from flask import Flask, request, jsonify
 app = Flask(__name__)
 if __name__ == '__main__':
     app.run(debug=False)

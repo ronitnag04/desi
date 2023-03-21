@@ -1,9 +1,12 @@
-Add software Paths
-DESI_SOFTWARE_PATH = /srv/software
+Add software Path
+1) DESI_SOFTWARE_PATH = /srv/software/
 
 Mounts:
-1)
+1) Bind-mount a directory from the node
     Path on Node: /global/common/software/desi/perlmutter/desiconda/20220119-2.0.1/
     The Path on node must be: An existing directory 
-    Mount Point: /srv/software
+    Mount Point: /srv/software/
     Read-Only: True
+2) Use a secret
+    secret: desi-specprod
+    Mount Point: /secrets/.pgpass

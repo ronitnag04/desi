@@ -1,18 +1,76 @@
 import os
+from argparse import Namespace
+from types import MethodType
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.font_manager import fontManager, FontProperties
+from sqlalchemy import __version__ as sqlalchemy_version
+from sqlalchemy import inspect
 from sqlalchemy.sql import func
+import astropy.units as u
+from astropy.constants import c as lightspeed
+from astropy.table import Table, MaskedColumn
 from flask import Flask, request, jsonify
 #
 # DESI software
 import sys
+paths = ['code/specprod-db/main/py',
+ 'code/QuasarNP/0.1.3/lib/python3.9/site-packages',
+ 'code/speclite/main',
+ 'code/simqso/main',
+ 'code/desimeter/main/py',
+ 'code/prospect/main/py',
+ 'code/redrock/main/py',
+ 'code/surveysim/main/py',
+ 'code/desisurvey/main/py',
+ 'code/fiberassign/main/py',
+ 'code/desisim/main/py',
+ 'code/desispec/main/py',
+ 'code/specsim/main',
+ 'code/desitarget/main/py',
+ 'code/specex/main/py',
+ 'code/desimodel/main/py',
+ 'code/gpu_specter/main/py',
+ 'code/specter/main/py',
+ 'code/desiutil/main/py',
+ 'conda/lib/python3.9/site-packages',
+ 'conda/lib/python39.zip',
+ 'conda/lib/python3.9',
+ 'conda/lib/python3.9/lib-dynload']
 software_path = os.environ['$DESI_SOFTWARE_PATH']
-sys.path.insert(0, f'{software_path}/desiutil/main/py')
-from desiutil.log import get_logger
-sys.path.insert(0, f'{software_path}/desispec/main/py')
+for path in paths:
+    sys.path.insert(0, f'{software_path}{path}')
+
+from desiutil.log import get_logger, DEBUG
+from desitarget.targetmask import (desi_mask, mws_mask, bgs_mask)
+# from desisim.spec_qa import redshifts as dsq_z
+from desisurvey import __version__ as desisurvey_version
+from desisurvey.ephem import get_ephem, get_object_interpolator
+from desisurvey.utils import get_observer
+from desispec import __version__ as desispec_version
 import desispec.database.redshift as db
-specprod = 'fuji'
+
+#
+# Paths to files, etc.
+#
+specprod = os.environ['SPECPROD'] = 'fuji'
+basedir = os.path.join(os.environ['DESI_SPECTRO_REDUX'], specprod)
+
+os.environ['DESISURVEY_OUTPUT'] = os.environ['SCRATCH']
+ephem = get_ephem()
+
+from astropy.time import Time
+from astropy.coordinates import ICRS
+
+workingdir = os.getcwd()
+print(workingdir)
+print(f'sqlalchemy=={sqlalchemy_version}')
+print(f'desispec=={desispec_version}')
+print(f'desisurvey=={desisurvey_version}')
+
 
 # Database Setup
-db.log = get_logger()
 postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
 
 #Flask Setup

@@ -1,6 +1,9 @@
 Add software Paths
-DESI_SOFTWARE_PATH = /srv/code
+DESI_SOFTWARE_PATH = /srv/software
 
-Mount
-/global/common/software/desi/perlmutter/desiconda/20220119-2.0.1/code
-/srv/code
+Mounts:
+1)
+    Path on Node: /global/common/software/desi/perlmutter/desiconda/20220119-2.0.1/
+    The Path on node must be: An existing directory 
+    Mount Point: /srv/software
+    Read-Only: True

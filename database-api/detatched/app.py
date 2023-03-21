@@ -1,6 +1,6 @@
 from sqlalchemy.sql import func
 from flask import Flask, request, jsonify
-#
+
 # DESI software
 import desispec.database.redshift as db
 specprod = 'fuji'
@@ -13,6 +13,8 @@ app = Flask(__name__)
 if __name__ == '__main__':
     app.run(debug=False)
 
+
+# Helper Methods
 valid_spectypes = {'GALAXY', 'STAR', 'QSO'}
 valid_subtypes = {'CV', 'M', 'G', 'K'}
 default_limit = 100
@@ -51,8 +53,6 @@ def filter_query(q, db_ref, body, z_min=-1.0, z_max=6.0, spectype=None, subtype=
     if subtype:
         q = q.filter(db_ref.subtype == subtype)
     
-    count = q.count()
-    
     if limit is not None:
         if start is not None and end is not None:
             raise ValueError('Cannot handle limit and start/end arguments to filter query')
@@ -77,11 +77,16 @@ def filter_query(q, db_ref, body, z_min=-1.0, z_max=6.0, spectype=None, subtype=
     
     return q
 
+
 def formatJSON(q):
     results = []
     for target in q.all():
-        results.append(dict(target))
-    return jsonify(results)
+        results.append(dict(target._mapping))
+    with app.app_context():
+        return jsonify(results)
+
+
+# Flask API Endpoints
 
 @app.route('/query/target/<targetID>', methods=['GET'])
 def getRedshiftByTargetID(targetID):
@@ -138,7 +143,9 @@ def getRedshiftsByTileID():
 def getRedshiftsByHEALPix():
     """ 
     @Params: 
-        healpix (INTEGER): ID of HEALpix to search for redshifts
+        body (DICT): Contains query parameters.
+            MUST CONTAIN: healpix, (limit/start/end)
+            OPTIONAL: spectype, subtype, z_min, z_max
     
     @Returns:
         results (JSON): JSON Object (targetID, redshift) containing the targetIDs and associated 
@@ -159,13 +166,13 @@ def getRedshiftsByHEALPix():
     return formatJSON(q)   
 
 
-@app.route('/query/loc/', methods=['POST'])
+@app.route('/query/radec', methods=['POST'])
 def getRedshiftsByRADEC():
     """ 
     @Params: 
-        ra (DOUBLE_PRECISION): Right Ascension of the center of cone to search for targets in degrees
-        dec (DOUBLE_PRECISION): Declination of the center of cone to search for targets in degrees
-        radius (DOUBLE_PRECISION): Radius of cone to search of targets in degrees
+        body (DICT): Contains query parameters.
+            MUST CONTAIN: ra, dec, (limit/start/end)
+            OPTIONAL: radius(default=0.01), spectype, subtype, z_min, z_max
     
     @Returns:
         results (JSON): JSON Object (targetID, ra, dec, redshift) for targets found

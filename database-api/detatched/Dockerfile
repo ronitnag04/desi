@@ -10,4 +10,4 @@ COPY desiutil/ /srv/desiutil/
 ADD app.py /srv/app.py
 ENV FLASK_APP=/srv/app.py
 EXPOSE 3306
-CMD ["flask", "run", "--host=0.0.0.0", "--port=3306", "--debug"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=3306"]

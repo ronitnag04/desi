@@ -1,4 +1,3 @@
-import os
 from sqlalchemy.sql import func
 from flask import Flask, request, jsonify
 #
@@ -93,6 +92,7 @@ def getRedshiftByTargetID(targetID):
     @Returns:
         z (DOUBLE): Redshift of the first object 
     """
+    targetID = int(targetID)
     if (targetID < 0):
         raise ValueError(f'Target ID {targetID} is invalid')
     
@@ -107,7 +107,7 @@ def getRedshiftByTargetID(targetID):
     return jsonify(z)
 
 
-@app.route('/query/ztile/', methods=['POST'])
+@app.route('/query/ztile', methods=['POST'])
 def getRedshiftsByTileID():
     """ 
     @Params: 
@@ -134,7 +134,7 @@ def getRedshiftsByTileID():
     return formatJSON(q)    
 
 
-@app.route('/query/zpix/', methods=['POST'])
+@app.route('/query/zpix', methods=['POST'])
 def getRedshiftsByHEALPix():
     """ 
     @Params: 

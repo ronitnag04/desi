@@ -10,3 +10,11 @@ Mounts:
 2) Use a secret
     secret: desi-specprod
     Mount Point: /secrets/.pgpass
+
+
+
+NOTES:
+Uploading to Harbor:
+1) TAG="registry.nersc.gov/desi/ronitnag/database-api:<version>"
+2) docker build -t $TAG . 
+3) docker push $TAG

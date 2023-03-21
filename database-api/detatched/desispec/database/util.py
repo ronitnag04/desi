@@ -254,9 +254,10 @@ def parse_pgpass(hostname='nerscdb03.nersc.gov', username='desidev_admin'):
     """
     fmt = "postgresql://{3}:{4}@{0}:{1}/{2}"
     try:
-        with open(expanduser('~/.pgpass')) as p:
+        with open('secrets/.pgpass', "r") as p:                         # ----------> Changed
             lines = p.readlines()
     except FileNotFoundError:
+        print("pgpass file not found")                                  # ----------> Changed
         return None
     data = dict()
     for l in lines:

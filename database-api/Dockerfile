@@ -1,19 +1,6 @@
-FROM ubuntu:latest
-
-ENV LC_ALL=C.UTF-8
-ENV LANG=C.UTF-8
-
-RUN \
-    apt-get update              &&  \
-    apt-get upgrade --yes       &&  \
-    apt-get install --yes           \
-        python3-flask               \
-        python3-sqlalchemy     
-
-ADD app.py /srv/app.py
-ENV FLASK_APP=/srv/app.py
+FROM python:3.9-buster
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 3306
 CMD ["flask", "run", "--host=0.0.0.0", "--port=3306"]
-
-ADD docker-entrypoint.sh /srv/docker-entrypoint.sh
-RUN chmod +x /srv/docker-entrypoint.sh
-ENTRYPOINT ["/srv/docker-entrypoint.sh"]

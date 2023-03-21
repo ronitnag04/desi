@@ -1,6 +1,5 @@
 # os
-# argparse
-# types
+argparse
 numpy
 matplotlib
 sqlalchemy

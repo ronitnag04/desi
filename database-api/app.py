@@ -1,6 +1,5 @@
 import os
 from argparse import Namespace
-from types import MethodType
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -42,6 +41,7 @@ software_path = os.environ['$DESI_SOFTWARE_PATH']
 for path in paths:
     sys.path.insert(0, f'{software_path}{path}')
 
+from types import MethodType
 from desiutil.log import get_logger, DEBUG
 from desitarget.targetmask import (desi_mask, mws_mask, bgs_mask)
 # from desisim.spec_qa import redshifts as dsq_z

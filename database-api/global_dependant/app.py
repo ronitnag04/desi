@@ -1,74 +1,9 @@
-import os
-from argparse import Namespace
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.font_manager import fontManager, FontProperties
-from sqlalchemy import __version__ as sqlalchemy_version
-from sqlalchemy import inspect
 from sqlalchemy.sql import func
-import astropy.units as u
-from astropy.constants import c as lightspeed
-from astropy.table import Table, MaskedColumn
 from flask import Flask, request, jsonify
-#
+
 # DESI software
-import sys
-paths = ['code/specprod-db/main/py',
- 'code/QuasarNP/0.1.3/lib/python3.9/site-packages',
- 'code/speclite/main',
- 'code/simqso/main',
- 'code/desimeter/main/py',
- 'code/prospect/main/py',
- 'code/redrock/main/py',
- 'code/surveysim/main/py',
- 'code/desisurvey/main/py',
- 'code/fiberassign/main/py',
- 'code/desisim/main/py',
- 'code/desispec/main/py',
- 'code/specsim/main',
- 'code/desitarget/main/py',
- 'code/specex/main/py',
- 'code/desimodel/main/py',
- 'code/gpu_specter/main/py',
- 'code/specter/main/py',
- 'code/desiutil/main/py',
- 'conda/lib/python3.9/site-packages',
- 'conda/lib/python39.zip',
- 'conda/lib/python3.9',
- 'conda/lib/python3.9/lib-dynload']
-software_path = os.environ['$DESI_SOFTWARE_PATH']
-for path in paths:
-    sys.path.insert(0, f'{software_path}{path}')
-
-from types import MethodType
-from desiutil.log import get_logger, DEBUG
-from desitarget.targetmask import (desi_mask, mws_mask, bgs_mask)
-# from desisim.spec_qa import redshifts as dsq_z
-from desisurvey import __version__ as desisurvey_version
-from desisurvey.ephem import get_ephem, get_object_interpolator
-from desisurvey.utils import get_observer
-from desispec import __version__ as desispec_version
 import desispec.database.redshift as db
-
-#
-# Paths to files, etc.
-#
-specprod = os.environ['SPECPROD'] = 'fuji'
-basedir = os.path.join(os.environ['DESI_SPECTRO_REDUX'], specprod)
-
-os.environ['DESISURVEY_OUTPUT'] = os.environ['SCRATCH']
-ephem = get_ephem()
-
-from astropy.time import Time
-from astropy.coordinates import ICRS
-
-workingdir = os.getcwd()
-print(workingdir)
-print(f'sqlalchemy=={sqlalchemy_version}')
-print(f'desispec=={desispec_version}')
-print(f'desisurvey=={desisurvey_version}')
-
+specprod = 'fuji'
 
 # Database Setup
 postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
@@ -78,11 +13,13 @@ app = Flask(__name__)
 if __name__ == '__main__':
     app.run(debug=False)
 
+
+# Helper Methods
 valid_spectypes = {'GALAXY', 'STAR', 'QSO'}
 valid_subtypes = {'CV', 'M', 'G', 'K'}
 default_limit = 100
 
-def filter_query(q, db_ref, body, z_min=-1.0, z_max=6.0, spectype=None, subtype=None, limit=None, start=None, end=None):
+def filter_query(q, db_ref, body):
     """
     Filters query based on options and provided reference table
     @Params:
@@ -100,15 +37,15 @@ def filter_query(q, db_ref, body, z_min=-1.0, z_max=6.0, spectype=None, subtype=
     start = body.get('start', None)
     end = body.get('end', None)
     if (z_min > z_max):
-        raise ValueError(f'z_min({z_min}) must be less than z_max({z_max})')
+        return jsonify(f'z_min({z_min}) must be less than z_max({z_max})')
     if (spectype and spectype not in valid_spectypes):
-        raise ValueError(f'Spectype {spectype} is not valid. Choose from available spectypes: {valid_spectypes}')
+        return jsonify(f'Spectype {spectype} is not valid. Choose from available spectypes: {valid_spectypes}')
     
     if (subtype and subtype not in valid_subtypes):
-        raise ValueError(f'Subtype {subtype} is not valid. Choose from available subtypes: {valid_subtypes}')
+        return jsonify(f'Subtype {subtype} is not valid. Choose from available subtypes: {valid_subtypes}')
         
     if (spectype and subtype and spectype != 'STAR'):
-        raise ValueError('Only STAR spectype currently have subtypes')
+        return jsonify('Only STAR spectype currently has subtypes')
     
     q = q.filter(db_ref.z >= z_min).filter(db_ref.z <= z_max)
     if spectype:
@@ -116,11 +53,9 @@ def filter_query(q, db_ref, body, z_min=-1.0, z_max=6.0, spectype=None, subtype=
     if subtype:
         q = q.filter(db_ref.subtype == subtype)
     
-    count = q.count()
-    
     if limit is not None:
         if start is not None and end is not None:
-            raise ValueError('Cannot handle limit and start/end arguments to filter query')
+            return jsonify('Cannot handle both limit and start/end arguments to filter query')
         elif (start is not None and end is None):
             q = q.offset(start).limit(limit)
         elif (end is not None and start is None):
@@ -134,19 +69,24 @@ def filter_query(q, db_ref, body, z_min=-1.0, z_max=6.0, spectype=None, subtype=
         if start is None and end is None:
             q.limit(default_limit)
         elif start is None or end is None:
-            raise ValueError(f'Must provide both start and end parameters if limit is not provided')
+            return jsonify(f'Must provide both start and end parameters if limit is not provided')
         elif end <= start:
-            raise ValueError(f'Start parameter {start} must be less than end parameter {end}')
+            return jsonify(f'Start parameter {start} must be less than end parameter {end}')
         else:
             q = q.offset(start).limit(end-start)
     
-    return q
+    return formatJSON(q)
+
 
 def formatJSON(q):
     results = []
     for target in q.all():
-        results.append(dict(target))
-    return jsonify(results)
+        results.append(dict(target._mapping))
+    with app.app_context():
+        return jsonify(results)
+
+
+# Flask API Endpoints
 
 @app.route('/query/target/<targetID>', methods=['GET'])
 def getRedshiftByTargetID(targetID):
@@ -157,13 +97,14 @@ def getRedshiftByTargetID(targetID):
     @Returns:
         z (DOUBLE): Redshift of the first object 
     """
+    targetID = int(targetID)
     if (targetID < 0):
-        raise ValueError(f'Target ID {targetID} is invalid')
+        return jsonify(f'Target ID {targetID} is invalid')
     
     q = db.dbSession.query(db.Zpix.z).filter(db.Zpix.targetid == targetID)
     
     if (q.first() is None):
-        raise ValueError(f'Target ID {targetID} was not found')
+        return jsonify(f'Target ID {targetID} was not found')
     if (q.count() > 1):
         print(f'More than one redshift value found for target: {targetID}. Returning first found')
         
@@ -171,7 +112,7 @@ def getRedshiftByTargetID(targetID):
     return jsonify(z)
 
 
-@app.route('/query/ztile/', methods=['POST'])
+@app.route('/query/ztile', methods=['POST'])
 def getRedshiftsByTileID():
     """ 
     @Params: 
@@ -187,22 +128,23 @@ def getRedshiftsByTileID():
     tileID = body['tileID']
     
     if (tileID < 1):
-        raise ValueError(f'Tile ID {tileID} is invalid')                         
+        return jsonify(f'Tile ID {tileID} is invalid')                         
   
     q = db.dbSession.query(db.Ztile.targetid, db.Ztile.z).filter(db.Ztile.tileid == tileID)
     
     if (q.first() is None):
-        raise ValueError(f'Tile ID {tileID} was not found')
+        return jsonify(f'Tile ID {tileID} was not found')
     
-    q = filter_query(q, db.Ztile, body)
-    return formatJSON(q)    
+    return filter_query(q, db.Ztile, body)
 
 
-@app.route('/query/zpix/', methods=['POST'])
+@app.route('/query/zpix', methods=['POST'])
 def getRedshiftsByHEALPix():
     """ 
     @Params: 
-        healpix (INTEGER): ID of HEALpix to search for redshifts
+        body (DICT): Contains query parameters.
+            MUST CONTAIN: healpix, (limit/start/end)
+            OPTIONAL: spectype, subtype, z_min, z_max
     
     @Returns:
         results (JSON): JSON Object (targetID, redshift) containing the targetIDs and associated 
@@ -212,24 +154,23 @@ def getRedshiftsByHEALPix():
     healpix = body['healpix']
     
     if (healpix < 1): # Set healpix bounds
-        raise ValueError(f'HEALPix {healpix} is invalid')
+        return jsonify(f'HEALPix {healpix} is invalid')
     
     q = db.dbSession.query(db.Zpix.targetid, db.Zpix.z).filter(db.Zpix.healpix == healpix)
     
     if (q.first() is None):
-        raise ValueError(f'HEALPix ID {healpix} was not found')
+        return jsonify(f'HEALPix ID {healpix} was not found')
     
-    q = filter_query(q, db.Zpix, body)
-    return formatJSON(q)   
+    return filter_query(q, db.Zpix, body)
 
 
-@app.route('/query/loc/', methods=['POST'])
+@app.route('/query/radec', methods=['POST'])
 def getRedshiftsByRADEC():
     """ 
     @Params: 
-        ra (DOUBLE_PRECISION): Right Ascension of the center of cone to search for targets in degrees
-        dec (DOUBLE_PRECISION): Declination of the center of cone to search for targets in degrees
-        radius (DOUBLE_PRECISION): Radius of cone to search of targets in degrees
+        body (DICT): Contains query parameters.
+            MUST CONTAIN: ra, dec, (limit/start/end)
+            OPTIONAL: radius(default=0.01), spectype, subtype, z_min, z_max
     
     @Returns:
         results (JSON): JSON Object (targetID, ra, dec, redshift) for targets found
@@ -240,17 +181,16 @@ def getRedshiftsByRADEC():
     dec = body['dec']
     radius = body.get('radius', 0.01)
     if (ra > 360 or ra < 0):
-        raise ValueError(f'Invalid Right Ascension {ra}')
+        return jsonify(f'Invalid Right Ascension {ra}')
     elif (dec > 90 or dec < -90):
-        raise ValueError(f'Invalid Declination {dec}')
+        return jsonify(f'Invalid Declination {dec}')
     elif (radius < 0):
-        raise ValueError(f'Invalid Radius {radius}')
+        return jsonify(f'Invalid Radius {radius}')
     
     q = db.dbSession.query(db.Photometry.targetid, db.Photometry.ra, db.Photometry.dec, db.Zpix.z)
     q = q.join(db.Zpix).filter(func.q3c_radial_query(db.Photometry.ra, db.Photometry.dec, ra, dec, radius))
     
     if (q.first() is None):
-        raise ValueError(f'No objects found at RA {ra} and DEC {dec} within radius {radius}')
+        return jsonify(f'No objects found at RA {ra} and DEC {dec} within radius {radius}')
         
-    q = filter_query(q, db.Zpix, body) 
-    return formatJSON(q)
+    return filter_query(q, db.Zpix, body)

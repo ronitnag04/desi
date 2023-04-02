@@ -4,12 +4,19 @@ Mounts:
     The Path on node must be: An existing directory 
     Mount Point: /srv/desiconda/
     Read-Only: True
-2) Use a secret
+2) Bind-mount a directory from the node
+    Path on Node: /global/cfs/cdirs/desi/spectro/redux
+    The Path on node must be: An existing directory 
+    Mount Point: /srv/redux/
+    Read-Only: True
+3) Use a secret
     secret: desi-specprod
     Mount Point: /secrets
     Specific Key: .pgpass
     Mount Point: .pgpass
 
+Config Map: database-api-config
+    FUJIFILES: /srv/redux/fuji
 
 NOTES:
 Uploading to Harbor:

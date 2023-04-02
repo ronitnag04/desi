@@ -1,5 +1,7 @@
 from sqlalchemy.sql import func
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
+import os
+import glob
 
 # DESI software
 import desispec.database.redshift as db
@@ -194,3 +196,15 @@ def getRedshiftsByRADEC():
         return jsonify(f'No objects found at RA {ra} and DEC {dec} within radius {radius}')
         
     return filter_query(q, db.Zpix, body)
+
+
+@app.route('/tile-qa/<tileid>')
+def displayTileQA(tileid):
+    tilepath = os.path.join(os.environ.get('FUJIFILES'), 'tiles/cumulative', tileid, '*/*.png')
+    print(tilepath)
+    tileQA = glob.glob(tilepath)
+    print(tileQA)
+    assert len(tileQA) > 0
+    return render_template("index.html", user_image = tileQA[0])
+
+

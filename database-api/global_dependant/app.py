@@ -205,6 +205,6 @@ def displayTileQA(tileid):
     tileQA = glob.glob(tilepath)
     print(tileQA)
     assert len(tileQA) > 0
-    return render_template("index.html", user_image = tileQA[0])
+    return render_template("tile-qa.html", user_image = tileQA[0])
 
 

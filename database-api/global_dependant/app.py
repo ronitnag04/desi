@@ -1,5 +1,5 @@
 from sqlalchemy.sql import func
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 import os
 import glob
 
@@ -200,11 +200,21 @@ def getRedshiftsByRADEC():
 
 @app.route('/tile-qa/<tileid>')
 def displayTileQA(tileid):
+    """
     tilepath = os.path.join(os.environ.get('FUJIFILES'), 'tiles/cumulative', tileid, '*/*.png')
     print(tilepath)
     tileQA = glob.glob(tilepath)
     print(tileQA)
     assert len(tileQA) > 0
     return render_template("tile-qa.html", user_image = tileQA[0])
+    """
+    tilepath = os.path.join(os.environ.get('FUJIFILES'), 'tiles/cumulative', tileid, '*/*.png')
+    tileQA = glob.glob(tilepath)
+    print(tileQA)
+    assert len(tileQA) > 0
+    image_path = tileQA[0]
+
+    return send_file(image_path)
+    
 
 

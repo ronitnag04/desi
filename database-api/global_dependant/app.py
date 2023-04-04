@@ -3,12 +3,18 @@ from flask import Flask, request, jsonify, render_template, send_file, Response
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import numpy as np
+from flask import Flask, request, jsonify, render_template, send_file, Response
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import numpy as np
 import os
 import glob
+import io
 import io
 
 # DESI software
 import desispec.database.redshift as db
+import desispec.io
 import desispec.io
 specprod = 'fuji'
 
@@ -22,9 +28,12 @@ if __name__ == '__main__':
 
 
 # Helper Variables
+# Helper Variables
 valid_spectypes = {'GALAXY', 'STAR', 'QSO'}
 valid_subtypes = {'CV', 'M', 'G', 'K'}
 default_limit = 100
+cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
+
 cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
 
 
@@ -205,6 +214,7 @@ def getRedshiftsByRADEC():
     return filter_query(q, db.Zpix, body)
 
 
+@app.route('/display/tile-qa/<tileid>')
 @app.route('/display/tile-qa/<tileid>')
 def displayTileQA(tileid):
     """

@@ -1,20 +1,14 @@
-from sqlalchemy.sql import func
-from flask import Flask, request, jsonify, render_template, send_file, Response
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-import numpy as np
-from flask import Flask, request, jsonify, render_template, send_file, Response
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-import numpy as np
 import os
 import glob
 import io
-import io
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from sqlalchemy.sql import func
+from flask import Flask, request, jsonify, render_template, send_file, Response
 
 # DESI software
 import desispec.database.redshift as db
-import desispec.io
 import desispec.io
 specprod = 'fuji'
 
@@ -26,14 +20,10 @@ app = Flask(__name__)
 if __name__ == '__main__':
     app.run(debug=False)
 
-
-# Helper Variables
 # Helper Variables
 valid_spectypes = {'GALAXY', 'STAR', 'QSO'}
 valid_subtypes = {'CV', 'M', 'G', 'K'}
 default_limit = 100
-cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
-
 cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
 
 
@@ -216,59 +206,63 @@ def getRedshiftsByRADEC():
 
 @app.route('/display/tile-qa/<tileid>')
 def displayTileQA(tileid):
+    """ 
+    @Params: 
+        tileid (str): Numerical string of tileid requested
+    @Returns:
+        image (PNG): PNG image of tile-qa
     """
-    tilepath = os.path.join(os.environ.get('FUJIFILES'), 'tiles/cumulative', tileid, '*/*.png')
-    print(tilepath)
-    tileQA = glob.glob(tilepath)
-    print(tileQA)
-    assert len(tileQA) > 0
-    return render_template("tile-qa.html", user_image = tileQA[0])
-    """
-    tilepath = os.path.join(os.environ.get('FUJIFILES'), 'tiles/cumulative', tileid, '*/*.png')
-    tileQA = glob.glob(tilepath)
-    print(tileQA)
-    assert len(tileQA) > 0
-    image_path = tileQA[0]
+    q = db.dbSession.query(db.Tile.lastnight).filter(db.Tile.tileid == int(tileid))
 
+    assert q.count() == 1
+    lastnight = q[0][0]
+    tilepath = os.path.join(os.environ.get('FUJIFILES'), 'tiles', 'cumulative', tileid, str(lastnight), f'tile-qa-{tileid}-thru{lastnight}.png')
+    tileQA = glob.glob(tilepath)
+    assert len(tileQA) == 1
+    image_path = tileQA[0]
     return send_file(image_path)
 
 @app.route('/display/target/<targetid>')  
 def displayTargetSpectra(targetid):
-    q = db.dbSession.query(db.Ztile.tileid).filter(db.Ztile.targetid == int(targetid))
+    """ 
+    @Params: 
+        targetid (str): Numerical string of targetid to plot spectra 
+    @Returns:
+        image (PNG): PNG image of matplotlib plot. 
+                     Plot contains spectra (wavelength vs. flux) for each tile where targetid is found.
+                     Spectra plots are stacked vertically, with each tile plot measuring 1600px by 300px.
+    """
+    q = db.dbSession.query(db.Fiberassign.tileid, db.Tile.lastnight, db.Fiberassign.petal_loc).join(db.Tile).filter(db.Fiberassign.targetid == int(targetid) and db.Fiberassign.tileid == db.Tile.tileid)
     if q is None:
         return jsonify(f'Target {targetid} not found!')
-    tiles = [t[0] for t in q.all()]
-    tiles.sort()
-    print(tiles)
     
-    fig, axs = plt.subplots(len(tiles), 1, figsize=(16,len(tiles)*3))
-    if len(tiles) == 1:
+    tile_rows = q.all()
+    tile_rows.sort(key=lambda r:r[0])
+    
+    fig, axs = plt.subplots(len(tile_rows), 1, figsize=(16,len(tile_rows)*3))
+    if len(tile_rows) == 1:
         axs = np.array([axs])
-    fig.tight_layout()
     
-    for i, tile in enumerate(tiles):
-        spectrafiles = glob.glob(os.path.join(os.environ.get('FUJIFILES'), 'tiles', 'cumulative', str(tile), '*', 'coadd-*.fits'))
-        found = False
-        j = 0
-        while (not found and j < len(spectrafiles)):
-            spectra = desispec.io.read_spectra(spectrafiles[j])
+    for i, (tileid, lastnight, petal_loc) in enumerate(tile_rows):
+        axs[i].set_title(f'Tile {tileid}')
+        path = os.path.join(os.environ.get('FUJIFILES'), 'tiles', 'cumulative', str(tileid), str(lastnight), f'coadd-{str(petal_loc)}-{str(tileid)}-thru{str(lastnight)}.fits')
+        spectrafiles = glob.glob(path)
+        
+        if len(spectrafiles) == 0:
+            axs[i].text(x=0.5, y=0.5, s= f'Could not find spectra for Tile {tileid}', va='center', ha='center', transform=axs[i].transAxes)
+        elif len(spectrafiles) == 0:
+            axs[i].text(x=0.5, y=0.5, s= f'Too many spectra for Tile {tileid}', va='center', ha='center', transform=axs[i].transAxes)
+        else:
+            spectra = desispec.io.read_spectra(spectrafiles[0], single=True) 
             fib = np.where(spectra.fibermap['TARGETID'] == int(targetid))
-            if len(fib) > 1:
-                print(fib)
-            if len(fib[0]) > 0:
-                found = True
-                j += 1
-                ispec = fib[0][0]
-                for band in spectra.bands:
-                    axs[i].plot(spectra.wave[band], spectra.flux[band][ispec], f'{cmap[band]}-', alpha=0.5, label=f'band {band}')
-                axs[i].legend()
-                axs[i].set_title(f'Tile {tile}')
-            else:
-                j += 1
-        if not found:
-            axs[i].set_title(f'Tile {tile}')
-            axs[i].text(x=0.5, y=0.5, s= f'Could not find spectra for Tile {tile}', va='center', ha='center', transform=axs[i//2, i%2].transAxes)
-
+            assert len(fib) == 1
+            ispec = fib[0][0]
+            for band in spectra.bands:
+                axs[i].plot(spectra.wave[band], spectra.flux[band][ispec], f'{cmap[band]}-', alpha=0.5, label=f'band {band}')
+            axs[i].set_xlabel(r'Wavelength $Å$')
+            axs[i].set_ylabel(r'Flux $10^{-17} \cdot \frac{ergs}{s \cdot cm^2 \cdot Å}$')
+            axs[i].legend(loc="upper right")
+    
     fig.tight_layout()
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)

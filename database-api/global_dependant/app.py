@@ -1,10 +1,15 @@
 from sqlalchemy.sql import func
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, Response
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import numpy as np
 import os
 import glob
+import io
 
 # DESI software
 import desispec.database.redshift as db
+import desispec.io
 specprod = 'fuji'
 
 # Database Setup
@@ -16,10 +21,12 @@ if __name__ == '__main__':
     app.run(debug=False)
 
 
-# Helper Methods
+# Helper Variables
 valid_spectypes = {'GALAXY', 'STAR', 'QSO'}
 valid_subtypes = {'CV', 'M', 'G', 'K'}
 default_limit = 100
+cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
+
 
 def filter_query(q, db_ref, body):
     """
@@ -198,7 +205,7 @@ def getRedshiftsByRADEC():
     return filter_query(q, db.Zpix, body)
 
 
-@app.route('/tile-qa/<tileid>')
+@app.route('/display/tile-qa/<tileid>')
 def displayTileQA(tileid):
     """
     tilepath = os.path.join(os.environ.get('FUJIFILES'), 'tiles/cumulative', tileid, '*/*.png')
@@ -215,6 +222,48 @@ def displayTileQA(tileid):
     image_path = tileQA[0]
 
     return send_file(image_path)
+
+@app.route('/display/target/<targetid>')  
+def displayTargetSpectra(targetid):
+    q = db.dbSession.query(db.Ztile.tileid).filter(db.Ztile.targetid == int(targetid))
+    if q is None:
+        return jsonify(f'Target {targetid} not found!')
+    tiles = [t[0] for t in q.all()]
+    tiles.sort()
+    print(tiles)
     
+    fig, axs = plt.subplots(len(tiles), 1, figsize=(16,len(tiles)*3))
+    if len(tiles) == 1:
+        axs = np.array([axs])
+    fig.tight_layout()
+    
+    for i, tile in enumerate(tiles):
+        spectrafiles = glob.glob(os.path.join(os.environ.get('FUJIFILES'), 'tiles', 'cumulative', str(tile), '*', 'coadd-*.fits'))
+        found = False
+        j = 0
+        while (not found and j < len(spectrafiles)):
+            spectra = desispec.io.read_spectra(spectrafiles[j])
+            fib = np.where(spectra.fibermap['TARGETID'] == int(targetid))
+            if len(fib) > 1:
+                print(fib)
+            if len(fib[0]) > 0:
+                found = True
+                print("found")
+                j += 1
+                ispec = fib[0][0]
+                for band in spectra.bands:
+                    axs[i].plot(spectra.wave[band], spectra.flux[band][ispec], f'{cmap[band]}-', alpha=0.5, label=f'band {band}')
+                axs[i].legend()
+                axs[i].set_title(f'Tile {tile}')
+            else:
+                j += 1
+        if not found:
+            axs[i].set_title(f'Tile {tile}')
+            axs[i].text(x=0.5, y=0.5, s= f'Could not find spectra for Tile {tile}', va='center', ha='center', transform=axs[i//2, i%2].transAxes)
 
-
+    fig.tight_layout()
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+        
+        

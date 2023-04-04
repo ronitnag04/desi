@@ -215,7 +215,6 @@ def getRedshiftsByRADEC():
 
 
 @app.route('/display/tile-qa/<tileid>')
-@app.route('/display/tile-qa/<tileid>')
 def displayTileQA(tileid):
     """
     tilepath = os.path.join(os.environ.get('FUJIFILES'), 'tiles/cumulative', tileid, '*/*.png')

@@ -5,7 +5,7 @@ RUN /usr/local/bin/python -m pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Create symlink to .pgpass configured in Rancher
+# Create symlink to .pgpass secret configured in Rancher
 RUN ["ln", "-s", "/secrets/.pgpass", "/.pgpass"]
 
 # Set PYTHONPATH to access /srv/desiconda global mount
@@ -19,7 +19,6 @@ RUN chmod ogu+rwx -R /.config/matplotlib
 # Run Flask App
 ADD templates /srv/templates
 ADD app.py /srv/app.py
-ENV FLASK_APP=/srv/app.py
+ENV FLASK_APP /srv/app.py
 EXPOSE 3306
 CMD ["flask", "run", "--host=0.0.0.0", "--port=3306"]
-

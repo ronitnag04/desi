@@ -20,22 +20,23 @@ app = Flask(__name__)
 if __name__ == '__main__':
     app.run(debug=False)
 
-# Helper Variables
+# Global Variables
 valid_spectypes = {'GALAXY', 'STAR', 'QSO'}
 valid_subtypes = {'CV', 'M', 'G', 'K'}
 default_limit = 100
-cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
+spectra_plot_cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
 
 
 def filter_query(q, db_ref, body):
     """
-    Filters query based on options and provided reference table
+    Filters query based on options and provided reference table. Returns JSON object of query.
     @Params:
         q (SQLAlchemy Query): Query object to apply filters
         db_ref (SQLAlchemy DeclarativeMeta): Table to use to apply filters (either Zpix or Ztile)
     
     @Returns:
-        q (SQLAlchemy Query): Query object after filters have been applied
+         (JSON): JSON dictionary mapping of each object in q after filters have been applied, 
+                 or JSON error string message.
     """
     z_min = body.get('z_min', -1.0)
     z_max = body.get('z_max', 6.0)
@@ -87,6 +88,13 @@ def filter_query(q, db_ref, body):
 
 
 def formatJSON(q):
+    """
+    Formats row objects of query q by extracting the row's dictionary mappings.
+    @Params:
+        q (SQLAlchemy Query): Query object to format into JSON object
+    @Returns:
+         (JSON): JSON dictionary mapping of each object in q
+    """
     results = []
     for target in q.all():
         results.append(dict(target._mapping))
@@ -95,7 +103,6 @@ def formatJSON(q):
 
 
 # Flask API Endpoints
-
 @app.route('/query/target/<targetID>', methods=['GET'])
 def getRedshiftByTargetID(targetID):
     """ 
@@ -125,8 +132,9 @@ def getRedshiftsByTileID():
     """ 
     @Params: 
         body (DICT): Contains query parameters.
-            MUST CONTAIN: tileID, (limit/start/end)
-            OPTIONAL: spectype, subtype, z_min, z_max
+            MUST CONTAIN: tileID(INT)
+            OPTIONAL: (limit=100(INT) / start(INT) / end(INT)), spectype(STRING), subtype(STRING), 
+                       z_min(DOUBLE), z_max(DOUBLE)
     
     @Returns:
         results (JSON): JSON Object (targetID, redshift) containing the targetIDs and associated 
@@ -151,8 +159,9 @@ def getRedshiftsByHEALPix():
     """ 
     @Params: 
         body (DICT): Contains query parameters.
-            MUST CONTAIN: healpix, (limit/start/end)
-            OPTIONAL: spectype, subtype, z_min, z_max
+            MUST CONTAIN: healpix (INT)
+            OPTIONAL: (limit=100(INT) / start(INT) / end(INT)), spectype(STRING), subtype(STRING), 
+                       z_min(DOUBLE), z_max(DOUBLE)
     
     @Returns:
         results (JSON): JSON Object (targetID, redshift) containing the targetIDs and associated 
@@ -177,8 +186,9 @@ def getRedshiftsByRADEC():
     """ 
     @Params: 
         body (DICT): Contains query parameters.
-            MUST CONTAIN: ra, dec, (limit/start/end)
-            OPTIONAL: radius(default=0.01), spectype, subtype, z_min, z_max
+            MUST CONTAIN: ra(DOUBLE), dec(DOUBLE)
+            OPTIONAL: radius=0.01(INT), (limit=100(INT) / start(INT) / end(INT)), spectype(STRING), 
+                      subtype(STRING), z_min(DOUBLE), z_max(DOUBLE)
     
     @Returns:
         results (JSON): JSON Object (targetID, ra, dec, redshift) for targets found
@@ -204,11 +214,12 @@ def getRedshiftsByRADEC():
     return filter_query(q, db.Zpix, body)
 
 
-@app.route('/display/tile-qa/<tileid>')
+@app.route('/display/tile-qa/<tileid>', methods=['GET'])
 def displayTileQA(tileid):
     """ 
+    Serves image file for specified tile, which is exists on the NERSC global filesystem
     @Params: 
-        tileid (str): Numerical string of tileid requested
+        tileid (STRING): Integer string of tileid requested
     @Returns:
         image (PNG): PNG image of tile-qa
     """
@@ -222,11 +233,12 @@ def displayTileQA(tileid):
     image_path = tileQA[0]
     return send_file(image_path)
 
-@app.route('/display/target/<targetid>')  
+@app.route('/display/target/<targetid>', methods=['GET'])  
 def displayTargetSpectra(targetid):
     """ 
+    Displays cumulative coadd spectra of the target for each tile it was observed on.
     @Params: 
-        targetid (str): Numerical string of targetid to plot spectra 
+        targetid (STRING): Integer string of targetid to plot spectra 
     @Returns:
         image (PNG): PNG image of matplotlib plot. 
                      Plot contains spectra (wavelength vs. flux) for each tile where targetid is found.
@@ -258,7 +270,7 @@ def displayTargetSpectra(targetid):
             assert len(fib) == 1
             ispec = fib[0][0]
             for band in spectra.bands:
-                axs[i].plot(spectra.wave[band], spectra.flux[band][ispec], f'{cmap[band]}-', alpha=0.5, label=f'band {band}')
+                axs[i].plot(spectra.wave[band], spectra.flux[band][ispec], f'{spectra_plot_cmap[band]}-', alpha=0.5, label=f'band {band}')
             axs[i].set_xlabel(r'Wavelength $Å$')
             axs[i].set_ylabel(r'Flux $10^{-17} \cdot \frac{ergs}{s \cdot cm^2 \cdot Å}$')
             axs[i].legend(loc="upper right")

@@ -15,13 +15,19 @@ Mounts:
     Specific Key: .pgpass
     Mount Point: .pgpass
 
-Config Map: database-api-config
-    FUJIFILES: /srv/desi/spectro/redux/fuji
+Config Map: 
+1) Name: database-api-config
+    -FUJIFILES: /srv/desi/spectro/redux/fuji
+
+Labels & Annotations: (For password protection)
+Annotations:
+1) nginx.ingress.kubernetes.io/auth-secret = desi-collab-htpasswd
+2) nginx.ingress.kubernetes.io/auth-secret-type = auth-map
+3) nginx.ingress.kubernetes.io/auth-type = basic
 
 NOTES:
 Uploading to Harbor:
 1) TAG="registry.nersc.gov/desi/ronitnag/database-api:<version>"
-
 2) docker build -t $TAG . 
 3) docker push $TAG
 --or--

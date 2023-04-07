@@ -17,7 +17,7 @@ RUN mkdir -p /.config/matplotlib
 RUN chmod ogu+rwx -R /.config/matplotlib
 
 # Run Flask App
-ADD templates /srv/templates
+ADD api /srv/api
 ADD app.py /srv/app.py
 ENV FLASK_APP /srv/app.py
 EXPOSE 3306

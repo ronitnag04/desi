@@ -1,0 +1,29 @@
+# os
+# re
+# glob
+# sys
+numpy
+astropy
+pytz
+sqlalchemy
+datetime
+# time
+# subprocess
+fitsio
+argparse
+# inspect
+# errno
+# collections
+# numbers
+# logging
+# warnings
+# calendar
+# multiprocessing
+# netrc
+requests
+# mpi4py
+flask
+psycopg2
+scipy
+# io
+# matplotlib

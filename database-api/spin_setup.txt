@@ -1,0 +1,34 @@
+Mounts:
+1) Bind-mount a directory from the node
+    Path on Node: /global/common/software/desi/perlmutter/desiconda/
+    The Path on node must be: An existing directory 
+    Mount Point: /srv/desiconda/
+    Read-Only: True
+2) Bind-mount a directory from the node
+    Path on Node: /global/cfs/cdirs/desi
+    The Path on node must be: An existing directory 
+    Mount Point: /srv/desi
+    Read-Only: True
+3) Use a secret
+    secret: desi-specprod
+    Mount Point: /secrets
+    Specific Key: .pgpass
+    Mount Point: .pgpass
+
+Config Map: 
+1) Name: database-api-config
+    -FUJIFILES: /srv/desi/spectro/redux/fuji
+
+Labels & Annotations: (For password protection)
+Annotations:
+1) nginx.ingress.kubernetes.io/auth-secret = desi-collab-htpasswd
+2) nginx.ingress.kubernetes.io/auth-secret-type = auth-map
+3) nginx.ingress.kubernetes.io/auth-type = basic
+
+NOTES:
+Uploading to Harbor:
+1) TAG="registry.nersc.gov/desi/ronitnag/database-api:<version>"
+2) docker build -t $TAG . 
+3) docker push $TAG
+--or--
+2) docker build -t $TAG . && docker push $TAG

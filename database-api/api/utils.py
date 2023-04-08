@@ -7,6 +7,20 @@ default_limit = 100
 
 from app import app
 
+def formatJSON(q):
+    """
+    Formats row objects of query q by extracting the row's dictionary mappings.
+    @Params:
+        q (SQLAlchemy Query): Query object to format into JSON object
+    @Returns:
+         (JSON): JSON dictionary mapping of each object in q
+    """
+    results = []
+    for target in q.all():
+        results.append(dict(target._mapping))
+    with app.app_context():
+        return jsonify(results)
+    
 def filter_query(q, db_ref, body):
     """
     Filters query based on options and provided reference table. Returns JSON object of query.
@@ -25,14 +39,14 @@ def filter_query(q, db_ref, body):
     limit = body.get('limit', None)
     start = body.get('start', None)
     end = body.get('end', None)
+
     if (z_min > z_max):
         return jsonify(f'z_min({z_min}) must be less than z_max({z_max})')
+    
     if (spectype and spectype not in valid_spectypes):
         return jsonify(f'Spectype {spectype} is not valid. Choose from available spectypes: {valid_spectypes}')
-    
     if (subtype and subtype not in valid_subtypes):
         return jsonify(f'Subtype {subtype} is not valid. Choose from available subtypes: {valid_subtypes}')
-        
     if (spectype and subtype and spectype != 'STAR'):
         return jsonify('Only STAR spectype currently has subtypes')
     
@@ -65,19 +79,3 @@ def filter_query(q, db_ref, body):
             q = q.offset(start).limit(end-start)
     
     return formatJSON(q)
-
-
-def formatJSON(q):
-    """
-    Formats row objects of query q by extracting the row's dictionary mappings.
-    @Params:
-        q (SQLAlchemy Query): Query object to format into JSON object
-    @Returns:
-         (JSON): JSON dictionary mapping of each object in q
-    """
-    results = []
-    for target in q.all():
-        results.append(dict(target._mapping))
-    with app.app_context():
-        return jsonify(results)
-

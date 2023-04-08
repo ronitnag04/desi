@@ -13,7 +13,7 @@ from app import app
 from .utils import filter_query
 
 
-@app.route('/query/ztile', methods=['POST'])
+@app.route('/api/query/ztile', methods=['POST'])
 def getRedshiftsByTileID():
     """ 
     @Params: 
@@ -40,7 +40,7 @@ def getRedshiftsByTileID():
     return filter_query(q, db.Ztile, body)
 
 
-@app.route('/query/zpix', methods=['POST'])
+@app.route('/api/query/zpix', methods=['POST'])
 def getRedshiftsByHEALPix():
     """ 
     @Params: 
@@ -67,7 +67,7 @@ def getRedshiftsByHEALPix():
     return filter_query(q, db.Zpix, body)
 
 
-@app.route('/query/radec', methods=['POST'])
+@app.route('/api/query/radec', methods=['POST'])
 def getRedshiftsByRADEC():
     """ 
     @Params: 

@@ -51,7 +51,7 @@ def displayTargetSpectra(targetid):
                      Spectra plots are stacked vertically, with each tile plot measuring 1600px by 300px.
     """
     q = db.dbSession.query(db.Fiberassign.tileid, db.Tile.lastnight, db.Fiberassign.petal_loc).join(db.Tile).filter(db.Fiberassign.targetid == int(targetid) and db.Fiberassign.tileid == db.Tile.tileid)
-    if q is None:
+    if q.count() == 0:
         return jsonify(f'Target {targetid} not found!')
     
     tile_rows = q.all()

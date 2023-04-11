@@ -12,6 +12,6 @@ app = Flask(__name__)
 if __name__ == '__main__':
     app.run(debug=False)
 
-import api.ztables
+import api.generic
 import api.loc
 import api.display

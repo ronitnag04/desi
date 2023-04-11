@@ -10,24 +10,25 @@ postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', userna
 
 #Flask Setup
 from app import app
-from .utils import filter_query
+
+from .utils import filter_ztable, format_SQL_JSON
 
 
-@app.route('/api/query/ztile', methods=['POST'])
+@app.route('/api/loc/ztile', methods=['GET'])
 def getRedshiftsByTileID():
     """ 
     @Params: 
-        body (DICT): Contains query parameters.
+        Query parameters:
             MUST CONTAIN: tileID(INT)
             OPTIONAL: (limit=100(INT) / start(INT) / end(INT)), spectype(STRING), subtype(STRING), 
                        z_min(DOUBLE), z_max(DOUBLE)
     
     @Returns:
-        results (JSON): JSON Object (targetID, redshift) containing the targetIDs and associated 
-                  redshifts for targets found in provided tileID.     
+        (JSON): JSON Object (targetID, redshift) containing the targetIDs and associated 
+                  redshifts for targets found in provided tileID.   
     """
-    body = request.get_json()
-    tileID = body['tileID']
+    params = request.args.to_dict()
+    tileID = int(params['tileID'])
     
     if (tileID < 1):
         return jsonify(f'Tile ID {tileID} is invalid')                         
@@ -37,14 +38,18 @@ def getRedshiftsByTileID():
     if (q.first() is None):
         return jsonify(f'Tile ID {tileID} was not found')
     
-    return filter_query(q, db.Ztile, body)
+    try:
+        q = filter_ztable(q, db.Ztile, params)
+        return format_SQL_JSON(q)
+    except ValueError as err:
+        return jsonify(str(err))
 
 
-@app.route('/api/query/zpix', methods=['POST'])
+@app.route('/api/loc/zpix', methods=['GET'])
 def getRedshiftsByHEALPix():
     """ 
     @Params: 
-        body (DICT): Contains query parameters.
+        Query parameters:
             MUST CONTAIN: healpix (INT)
             OPTIONAL: (limit=100(INT) / start(INT) / end(INT)), spectype(STRING), subtype(STRING), 
                        z_min(DOUBLE), z_max(DOUBLE)
@@ -53,8 +58,8 @@ def getRedshiftsByHEALPix():
         results (JSON): JSON Object (targetID, redshift) containing the targetIDs and associated 
                   redshifts for targets found in provided HealPIX.   
     """
-    body = request.get_json()
-    healpix = body['healpix']
+    params = request.args.to_dict()
+    healpix = int(params['healpix'])
     
     if (healpix < 1): # Set healpix bounds
         return jsonify(f'HEALPix {healpix} is invalid')
@@ -64,14 +69,18 @@ def getRedshiftsByHEALPix():
     if (q.first() is None):
         return jsonify(f'HEALPix ID {healpix} was not found')
     
-    return filter_query(q, db.Zpix, body)
+    try:
+        q = filter_ztable(q, db.Zpix, params)
+        return format_SQL_JSON(q)
+    except ValueError as err:
+        return jsonify(str(err))
 
 
-@app.route('/api/query/radec', methods=['POST'])
+@app.route('/api/loc/radec', methods=['GET'])
 def getRedshiftsByRADEC():
     """ 
     @Params: 
-        body (DICT): Contains query parameters.
+        Query parameters:
             MUST CONTAIN: ra(DOUBLE), dec(DOUBLE)
             OPTIONAL: radius=0.01(INT), (limit=100(INT) / start(INT) / end(INT)), spectype(STRING), 
                       subtype(STRING), z_min(DOUBLE), z_max(DOUBLE)
@@ -80,10 +89,11 @@ def getRedshiftsByRADEC():
         results (JSON): JSON Object (targetID, ra, dec, redshift) for targets found
                         in cone search of the provided ra, dec, radius
     """
-    body = request.get_json()
-    ra = body['ra']
-    dec = body['dec']
-    radius = body.get('radius', 0.01)
+    params = request.args.to_dict()
+    ra = float(params['ra'])
+    dec = float(params['dec'])
+    radius = float(params.get('radius', 0.01))
+
     if (ra > 360 or ra < 0):
         return jsonify(f'Invalid Right Ascension {ra}')
     elif (dec > 90 or dec < -90):
@@ -97,4 +107,8 @@ def getRedshiftsByRADEC():
     if (q.first() is None):
         return jsonify(f'No objects found at RA {ra} and DEC {dec} within radius {radius}')
         
-    return filter_query(q, db.Zpix, body)
+    try:
+        q = filter_ztable(q, db.Zpix, params)
+        return format_SQL_JSON(q)
+    except ValueError as err:
+        return jsonify(str(err))

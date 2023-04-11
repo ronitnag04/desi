@@ -27,3 +27,4 @@ psycopg2
 scipy
 # io
 # matplotlib
+# json

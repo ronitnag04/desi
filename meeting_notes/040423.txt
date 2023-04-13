@@ -1,6 +1,6 @@
-Add security feature to access the api
-Make sure docstrings are descriptive
-work on rendering template
+- Add security feature to access the api
+- Make sure docstrings are descriptive
+o work on rendering template
 
-work on psql combined view
-work on generic column queries
+o work on psql combined view
+- work on generic column queries

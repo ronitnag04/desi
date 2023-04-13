@@ -1,0 +1,5 @@
+TODO:
+
+o Refactor ValueError to AssertionError
+o SQL injection on string types
+o Use target healpix, include duplicates but future maybe change

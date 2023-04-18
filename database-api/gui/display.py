@@ -14,7 +14,7 @@ specprod = 'fuji'
 # Database Setup
 postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
 
-#Flask Setup
+# Flask Setup
 from app import app
 
 spectra_plot_cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
@@ -68,7 +68,7 @@ def displayTargetSpectra(targetid):
         
         if len(spectrafiles) == 0:
             axs[i].text(x=0.5, y=0.5, s= f'Could not find spectra for Tile {tileid}', va='center', ha='center', transform=axs[i].transAxes)
-        elif len(spectrafiles) == 0:
+        elif len(spectrafiles) > 1:
             axs[i].text(x=0.5, y=0.5, s= f'Too many spectra for Tile {tileid}', va='center', ha='center', transform=axs[i].transAxes)
         else:
             spectra = desispec.io.read_spectra(spectrafiles[0], single=True) 

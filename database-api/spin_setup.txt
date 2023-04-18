@@ -27,6 +27,6 @@ Annotations:
 
 NOTES:
 Uploading to Harbor:
-1) LATEST="registry.nersc.gov/desi/ronitnag/database-api:latest"
-2) TAG="registry.nersc.gov/desi/ronitnag/database-api:<version>"
-3) docker build -t $TAG . && docker tag $TAG $LATEST && docker push $TAG && docker push $LATEST 
+LATEST="registry.nersc.gov/desi/ronitnag/database-api:latest"
+TAG="registry.nersc.gov/desi/ronitnag/database-api:<version>"
+docker build -t $TAG . && docker tag $TAG $LATEST && docker push $TAG && docker push $LATEST 

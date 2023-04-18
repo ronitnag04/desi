@@ -14,4 +14,4 @@ if __name__ == '__main__':
 
 import api.generic
 import api.loc
-import api.display
+import gui.display

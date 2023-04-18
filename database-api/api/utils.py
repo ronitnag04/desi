@@ -95,8 +95,8 @@ def filter_ztable(q, db_ref, options):
 
     z_min = float(options.get('z_min', -1.0))
     z_max = float(options.get('z_max', 6.0))
-    spectype = options.get('spectype', None)
-    subtype = options.get('subtype', None)
+    spectype = str(options.get('spectype', None))
+    subtype = str(options.get('subtype', None))
 
     if (z_min > z_max):
         raise ValueError(f'z_min({z_min}) must be less than z_max({z_max})')

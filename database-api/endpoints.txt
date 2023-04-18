@@ -1,11 +1,15 @@
+api.generic.py
 @app.route('/api/table', methods=['GET'])
 @app.route('/api/table/columns', methods=['GET'])
 
-
+api.loc.py
 @app.route('/api/loc/ztile', methods=['GET'])
 @app.route('/api/loc/zpix', methods=['GET'])
 @app.route('/api/loc/radec', methods=['GET'])
 
-
+gui.display.py
 @app.route('/display/tile-qa/<tileid>', methods=['GET'])
 @app.route('/display/target/<targetid>', methods=['GET'])  
+
+gui.multispectra.py
+@app.route('/file/multispectra', methods=['GET'])

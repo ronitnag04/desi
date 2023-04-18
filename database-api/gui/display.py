@@ -20,7 +20,7 @@ from app import app
 spectra_plot_cmap = {'b':'C0', 'r':'C1', 'z':'C2'}
 
 
-@app.route('/display/tile-qa/<tileid>', methods=['GET'])
+@app.route('/gui/display/tile-qa/<tileid>', methods=['GET'])
 def displayTileQA(tileid):
     """ 
     Serves image file for specified tile, which is exists on the NERSC global filesystem
@@ -39,7 +39,7 @@ def displayTileQA(tileid):
     image_path = tileQA[0]
     return send_file(image_path)
 
-@app.route('/display/target/<targetid>', methods=['GET'])  
+@app.route('/gui/display/target/<targetid>', methods=['GET'])  
 def displayTargetSpectra(targetid):
     """ 
     Displays cumulative coadd spectra of the target for each tile it was observed on.
@@ -63,7 +63,9 @@ def displayTargetSpectra(targetid):
     
     for i, (tileid, lastnight, petal_loc) in enumerate(tile_rows):
         axs[i].set_title(f'Tile {tileid}')
-        path = os.path.join(os.environ.get('FUJIFILES'), 'tiles', 'cumulative', str(tileid), str(lastnight), f'coadd-{str(petal_loc)}-{str(tileid)}-thru{str(lastnight)}.fits')
+        dir = os.path.join(os.environ.get('FUJIFILES'), 'tiles', 'cumulative', str(tileid), str(lastnight))
+        filename = f'coadd-{str(petal_loc)}-{str(tileid)}-thru{str(lastnight)}.fits'
+        path = os.path.join(dir, filename)
         spectrafiles = glob.glob(path)
         
         if len(spectrafiles) == 0:

@@ -15,3 +15,4 @@ if __name__ == '__main__':
 import api.generic
 import api.loc
 import gui.display
+import gui.multispectra

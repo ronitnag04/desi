@@ -1,9 +1,13 @@
 api.generic.py
+    - Queries can be limited, and indexed with start/stop
+
     @app.route('/api/table', methods=['GET']) 
         - Execute queries on a single table, filtering columns with conditions 
           (equals, not equals, less than, greater than)
+        - http://lb.ronitnag.development.svc.spin.nersc.org/api/table?table=ztile&columns=[{"name":"targetid"},{"name":"spectype", "e":"GALAXY"}, {"name":"z", "gte":0.5}, {"name":"tileid", "ne":123}]&limit=10
     @app.route('/api/table/columns', methods=['GET'])
         - Get column names and data types for a specific table in the database
+        - http://lb.ronitnag.development.svc.spin.nersc.org/api/table/columns?table=fiberassign
 
 api.loc.py
     - Queries can be filtered by redshift, spectype, and subtype
@@ -11,22 +15,29 @@ api.loc.py
     
     @app.route('/api/loc/ztile', methods=['GET'])
         - Get targetIDs and redshifts for objects on a specific tile
+        - http://lb.ronitnag.development.svc.spin.nersc.org/api/loc/ztile?tileID=123&spectype=QSO&z_min=1&start=4&limit=3
     @app.route('/api/loc/zpix', methods=['GET'])
         - Get targetIDs and redshifts for objects on a specific healpix
+        - http://lb.ronitnag.development.svc.spin.nersc.org/api/loc/zpix?healpix=2152&spectype=STAR
     @app.route('/api/loc/radec', methods=['GET'])
         - Get targetIDs, rigth ascensions, declinations, and redshifts for objects on a specific tile
+        - http://lb.ronitnag.development.svc.spin.nersc.org/api/loc/radec?ra=24&dec=32&radius=1&start=5&end=25
 
 api.multispectra.py
     @app.route('/api/file/multispectra', methods=['GET'])
         - Get .fits file containing spectra for each target provided
+        - http://lb.ronitnag.development.svc.spin.nersc.org/api/file/multispectra?targetIDs=39628509684957893, 39628504509188082, 39628504513380603
 
 gui.display.py
     @app.route('/gui/display/tile-qa', methods=['GET'])
         - Displays tile-qa png for provided tile
+        - http://lb.ronitnag.development.svc.spin.nersc.org/gui/display/tile-qa?tileID=123
     @app.route('/gui/display/target', methods=['GET'])  
         - Displays spectra for target for each tile it was observed on
+        - http://lb.ronitnag.development.svc.spin.nersc.org/gui/display/target?targetID=39628443930855976
     @app.route('/gui/display/multispectra', methods=['GET']) 
         - Displays spectra for all targetIDs provided
+        - http://lb.ronitnag.development.svc.spin.nersc.org/gui/display/multispectra?targetIDs=39628443930855976,%2039628473202901028
 
 gui.multispectra.py
     @app.route('/gui/multispectra', methods=['GET'])

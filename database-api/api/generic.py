@@ -11,7 +11,7 @@ postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', userna
 # Flask Setup
 from app import app
 
-from api.utils import format_JSON, format_SQL_JSON, default_limit, parseParams
+from api.utils import format_JSON, format_SQL_JSON, parseParams, filter_index
 
 
 def getTableColumns(params):
@@ -78,7 +78,7 @@ def queryTable():
                         ne: not equal to filter
                         lte: less than or equal to filter
                         gte: greater than or equal to filter
-            OPTIONAL: limit=100(INT)
+            OPTIONAL: limit=100(INT), start(INT), stop(INT)
     
     @Returns:
         (JSON): JSON Object containing the columns requested for the targets that matched the query
@@ -96,12 +96,9 @@ def queryTable():
             q = q.filter(getColumn(table, column['name']) <= column['lte'])
         if 'gte' in column:
             q = q.filter(getColumn(table, column['name']) >= column['gte'])
-    if 'limit' in params:
-        q = q.limit(params['limit'])
-    else:
-        q = q.limit(default_limit)
     
     try:
+        q = filter_index(q, params)
         return format_SQL_JSON(q)
     except ValueError as err:
         return jsonify(str(err))

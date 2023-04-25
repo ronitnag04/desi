@@ -2,7 +2,7 @@ from flask import jsonify
 
 # Global Variables
 valid_spectypes = {'GALAXY', 'STAR', 'QSO'}
-valid_subtypes = {'CV', 'M', 'G', 'K'}
+valid_subtypes = {'CV', 'M', 'G', 'K', 'A', 'B', 'F', 'WD'}
 default_limit = 100
 
 from app import app

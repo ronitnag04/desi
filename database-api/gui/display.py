@@ -95,6 +95,8 @@ def displayTargetSpectra():
             assert len(fib) == 1
             ispec = fib[0][0]
             plotSpectra(spectra, ispec, axs, i)
+    
+    fig.tight_layout()
     return figToPNG(fig)
 
 @app.route('/gui/display/multispectra', methods=['GET'])  
@@ -127,9 +129,9 @@ def displayMultispectra():
     if num == 1:
         axs = np.array([axs])
     for i in range(num):
-        axs[i].set_title(f'Target {spectra.fibermap["TARGETID"][i]}')
+        axs[i].set_title(f'Target {spectra.fibermap["TARGETID"][i]} on Tile {spectra.fibermap["TILEID"][i]}')
         plotSpectra(spectra, i, axs, i)
+    
     fig.tight_layout()
-
     return figToPNG(fig)
     

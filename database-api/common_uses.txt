@@ -1,0 +1,15 @@
+1) Find targets and redshifts by location
+    - Look at the endpoints available at /api/loc
+
+2) Display spectra graphically
+    - Look at endpoints avaiable at /gui/display
+
+3) Find information on a list of provided targetIDs
+    - Use /gui/multispectra to plot or get a .fits file of spectra
+
+4) Get raw .fits file for a set of targetIDs
+    - Use /api/multispectra
+
+5) Perform general simple queries on single tables
+    - Use endpoint /api/table to perform queries
+    - Use endpoint /api/table/columns to get more information on a specific table

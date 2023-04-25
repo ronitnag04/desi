@@ -1,18 +1,33 @@
 api.generic.py
-@app.route('/api/table', methods=['GET'])
-@app.route('/api/table/columns', methods=['GET'])
+    @app.route('/api/table', methods=['GET']) 
+        - Execute queries on a single table, filtering columns with conditions 
+          (equals, not equals, less than, greater than)
+    @app.route('/api/table/columns', methods=['GET'])
+        - Get column names and data types for a specific table in the database
 
 api.loc.py
-@app.route('/api/loc/ztile', methods=['GET'])
-@app.route('/api/loc/zpix', methods=['GET'])
-@app.route('/api/loc/radec', methods=['GET'])
+    - Queries can be filtered by redshift, spectype, and subtype
+    - Queries can be limited, and indexed with start/stop
+    
+    @app.route('/api/loc/ztile', methods=['GET'])
+        - Get targetIDs and redshifts for objects on a specific tile
+    @app.route('/api/loc/zpix', methods=['GET'])
+        - Get targetIDs and redshifts for objects on a specific healpix
+    @app.route('/api/loc/radec', methods=['GET'])
+        - Get targetIDs, rigth ascensions, declinations, and redshifts for objects on a specific tile
 
 api.multispectra.py
-@app.route('/api/file/multispectra', methods=['GET'])
+    @app.route('/api/file/multispectra', methods=['GET'])
+        - Get .fits file containing spectra for each target provided
 
 gui.display.py
-@app.route('/gui/display/tile-qa/<tileid>', methods=['GET'])
-@app.route('/gui/display/target/<targetid>', methods=['GET'])  
+    @app.route('/gui/display/tile-qa/<tileid>', methods=['GET'])
+        - Displays tile-qa png for provided tile
+    @app.route('/gui/display/target/<targetid>', methods=['GET'])  
+        - Displays spectra for target for each tile it was observed on
+    @app.route('/gui/display/multispectra', methods=['GET']) 
+        - Displays spectra for all targetIDs provided
 
 gui.multispectra.py
-@app.route('/gui/multispectra', methods=['GET'])
+    @app.route('/gui/multispectra', methods=['GET'])
+        - Serves html page for graphical interfaces for getting spectra .fits files or png plots

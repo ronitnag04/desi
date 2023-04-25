@@ -18,7 +18,6 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static', 'images'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-
 import api.generic
 import api.loc
 import api.multispectra

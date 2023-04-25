@@ -1,4 +1,4 @@
-# DESI Fuji API:
+# DESI Database API <img src="static/images/Icon.png"  width="32" height="25">
 Collaborators: Ronit Nagarapu, Stephen Bailey
 
 Last Updated: 4/25/2023

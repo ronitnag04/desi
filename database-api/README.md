@@ -56,19 +56,22 @@ There is also a graphical interface for some functionality; specifically, you ca
   from app import app
   ```
 -  Endpoints and Query Parameters:
-   -  All endpoints current use query parameters to allow users to provide specifications. Lines 3 and 4 must be at the top of any endpoint method, before the parameters are used with SQLAlchemy. 
+   -  All endpoints current use query parameters to allow users to provide specifications. You must pass the query parameters to the parseParams method before using them with SQLAlchemy. 
    ```
    from flask import request
    from api.utils import parseParams 
-   params = request.args.to_dict()
-   parseParams(params)
+   ...
+   @app.route('/api/someendpoint', methods=['GET'])
+   def someFunction():
+       params = request.args.to_dict()
+       parseParams(params)
    ```
    - NOTE: parseParams is not fully tested, and there is room for future improvements in security
    - See [api.utils.py](api/utils.py) for more useful methods
  - Validation and Errors:
-   - When designing methods, make sure to validate your inputs before using them. When performing any queries, file searches, etc. validate the amount of items you expect in return. These are just two examples, there are many other situations to validate. 
+   - When designing methods, make sure to validate your inputs before using them. When performing any queries, file searches, etc., you should validate the amount of items you expect in return. These are just two examples, and there are many other situations to validate. 
    - When you are validating in helper methods, raise ValueError when you encounter invalid items, with messages describing the issue. These errors should be handled in a try except block in the endpoint that uses them, and the error should be returned as a jsonified string to the user. 
-   - If you wish to raise and error that should not be passed back to the user, use an assert statement. Note however, that this will just result in a 500 response code to the user, which may not help them resolve the issue.
+   - If you wish to raise an error that should not be passed back to the user, use an assert statement. Note however, that this will just result in a 500 response code to the user, which may not help them resolve the issue.
  - Security:
    - Never add the .pgpass file containing the password to the desi database
    - Never store your github password or any secrets in files in this repo.

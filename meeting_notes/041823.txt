@@ -1,6 +1,6 @@
-o Keep enpoint that immediately returns files
-o Have plot spectra store url as extra button (that will have to parse through files again
-o remove invalid characters prevent SQLInjection
+- Keep endpoint that immediately returns files
+- Have plot spectra store url as extra button (that will have to parse through files again
+- remove invalid characters prevent SQLInjection
 
 
 Priority of features:
@@ -9,6 +9,6 @@ Plotting spectra
 Getting JSON object
 
 Documentation:
-o doctrings for methods (inputs, outputs, types, sideffects)
-o add descriptions to all endpoints
-o For common applications, describe precedure (which endpoints to use)
+- doctrings for methods (inputs, outputs, types, sideffects)
+- add descriptions to all endpoints
+- For common applications, describe precedure (which endpoints to use)

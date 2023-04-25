@@ -13,9 +13,15 @@ def parseParams(params):
     if type(params) == str:
         if any(invalid_character in params for invalid_character in invalid_characters):
             raise ValueError(f'Illegal query parameter {params}')
+    elif type(params) == dict:
+        for key, value in params.items():
+            parseParams(key)
+            parseParams(value)
+    elif type(params) == list:
+        for item in params:
+            parseParams(item)
     else:
-        for param in params:
-            parseParams(param)
+        raise ValueError('Unsupported parameter type')
 
 
 def format_JSON(results):

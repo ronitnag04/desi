@@ -16,11 +16,14 @@ ENV MPLCONFIGDIR /.config/matplotlib
 RUN mkdir -p /.config/matplotlib
 RUN chmod ogu+rwx -R /.config/matplotlib
 
-# Run Flask App
+# Copy Files
 ADD api /srv/api
 ADD gui /srv/gui
+ADD static /srv/static
 ADD templates /srv/templates
 ADD app.py /srv/app.py
+
+# Run Flask App
 ENV FLASK_APP /srv/app.py
 EXPOSE 3306
 CMD ["flask", "run", "--host=0.0.0.0", "--port=3306"]

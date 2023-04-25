@@ -43,7 +43,7 @@ There is also a graphical interface for some functionality; specifically, you ca
    ```
 7) Make sure to update the [requirements.txt](requirements.txt) file if you need to import python packages that are not available by default with python:3.10-buster image.
 8) New .html pages should go into the [templates](templates) folder
-9)  If you create new folders or python files, make sure to update the imports in [app.py](app.py) accordingly.
+9)  If you create new folders or python files, make sure to update the imports in [app.py](app.py) and copy files in the [Dockerfile](Dockerfile) accordingly.
 10) Add new endpoints to the [endpoints.txt](endpoints.txt) document, and update the [Common Uses](#common-uses) section with any major feature additions.
 
 ### Development Notes:

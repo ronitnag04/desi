@@ -7,6 +7,17 @@ default_limit = 100
 
 from app import app
 
+
+def parseParams(params):
+    invalid_characters = [';', '-', '/', '\\', '=']
+    if type(params) == str:
+        if any(invalid_character in params for invalid_character in invalid_characters):
+            raise ValueError(f'Illegal query parameter {params}')
+    else:
+        for param in params:
+            parseParams(param)
+
+
 def format_JSON(results):
     """
     Uses flask's jsonify with app context to format results into JSON.

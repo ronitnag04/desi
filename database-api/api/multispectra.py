@@ -16,7 +16,7 @@ import glob
 import os
 import tempfile
 
-from api.utils import default_limit
+from api.utils import default_limit, parseParams
 
 def getTargetids(params):
     """
@@ -85,6 +85,7 @@ def serveMultispectra():
             from storage once delivered to user  
     """
     params = request.args.to_dict()
+    parseParams(params)
     targetids = getTargetids(params)
     q = queryTargetIDs(targetids)
     if q.count() == 0:

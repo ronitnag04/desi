@@ -21,9 +21,9 @@ api.multispectra.py
         - Get .fits file containing spectra for each target provided
 
 gui.display.py
-    @app.route('/gui/display/tile-qa/<tileid>', methods=['GET'])
+    @app.route('/gui/display/tile-qa', methods=['GET'])
         - Displays tile-qa png for provided tile
-    @app.route('/gui/display/target/<targetid>', methods=['GET'])  
+    @app.route('/gui/display/target', methods=['GET'])  
         - Displays spectra for target for each tile it was observed on
     @app.route('/gui/display/multispectra', methods=['GET']) 
         - Displays spectra for all targetIDs provided

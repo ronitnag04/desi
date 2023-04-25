@@ -11,7 +11,7 @@ postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', userna
 #Flask Setup
 from app import app
 
-from .utils import filter_ztable, format_SQL_JSON
+from api.utils import filter_ztable, format_SQL_JSON, parseParams
 
 
 @app.route('/api/loc/ztile', methods=['GET'])
@@ -28,6 +28,7 @@ def getRedshiftsByTileID():
                   redshifts for targets found in provided tileID.   
     """
     params = request.args.to_dict()
+    parseParams(params)
     tileID = int(params['tileID'])
     
     if (tileID < 1):
@@ -59,6 +60,7 @@ def getRedshiftsByHEALPix():
                   redshifts for targets found in provided HealPIX.   
     """
     params = request.args.to_dict()
+    parseParams(params)
     healpix = int(params['healpix'])
     
     if (healpix < 1): # Set healpix bounds
@@ -90,6 +92,7 @@ def getRedshiftsByRADEC():
                         in cone search of the provided ra, dec, radius
     """
     params = request.args.to_dict()
+    parseParams(params)
     ra = float(params['ra'])
     dec = float(params['dec'])
     radius = float(params.get('radius', 0.01))

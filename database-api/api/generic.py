@@ -11,7 +11,7 @@ postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', userna
 # Flask Setup
 from app import app
 
-from .utils import format_JSON, format_SQL_JSON, default_limit
+from api.utils import format_JSON, format_SQL_JSON, default_limit, parseParams
 
 
 def getTableColumns(params):
@@ -84,6 +84,7 @@ def queryTable():
         (JSON): JSON Object containing the columns requested for the targets that matched the query
     """
     params = request.args.to_dict()
+    parseParams(params)
     table, columns = getTableColumns(params)
     q = db.dbSession.query(*columns)
     for column in json.loads(params['columns']):
@@ -117,6 +118,7 @@ def getColumnNamesTypes():
         (JSON): JSON Object containing the column info (name, type) for each column in requested table
     """
     params = request.args.to_dict()
+    parseParams(params)
     table = getTable(params['table'])
     results = [{"name":c.key, "type":c.type.__visit_name__} for c in table.__table__.columns]
     try:

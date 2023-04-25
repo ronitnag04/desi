@@ -17,7 +17,7 @@ postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', userna
 # Flask Setup
 from app import app
 
-from api.utils import default_limit
+from api.utils import default_limit, parseParams
 from api.multispectra import getTargetids, queryTargetIDs, getSpectra
 from gui.utils import figToPNG, plotSpectra
 
@@ -35,6 +35,7 @@ def displayTileQA():
         image (PNG): PNG image of tile-qa
     """
     params = request.args.to_dict()
+    parseParams(params)
     tileid = int(params.get("tileID"))
 
     q = db.dbSession.query(db.Tile.lastnight).filter(db.Tile.tileid == tileid)
@@ -63,6 +64,7 @@ def displayTargetSpectra():
                      Spectra plots are stacked vertically, with each tile plot measuring 1600px by 300px.
     """
     params = request.args.to_dict()
+    parseParams(params)
     targetid = int(params.get("targetID"))
 
     q = db.dbSession.query(db.Fiberassign.tileid, db.Tile.lastnight, db.Fiberassign.petal_loc).join(db.Tile)
@@ -109,6 +111,7 @@ def displayMultispectra():
                      Spectra plots are stacked vertically, with each tile plot measuring 1600px by 300px.
     """
     params = request.args.to_dict()
+    parseParams(params)
     targetids = getTargetids(params)
     q = queryTargetIDs(targetids)
     if q.count() == 0:

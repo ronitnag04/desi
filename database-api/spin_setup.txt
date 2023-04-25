@@ -15,6 +15,10 @@ Mounts:
     Specific Key: .pgpass
     Mount Point: .pgpass
 
+Ingress:
+1) Use port 3306 (must change Dockerfile if not using 3306)
+2) Follow the steps on https://docs.nersc.gov/services/spin/connecting/ 
+
 Config Map: 
 1) Name: database-api-config
     -FUJIFILES: /srv/desi/spectro/redux/fuji
@@ -28,5 +32,5 @@ Annotations:
 NOTES:
 Uploading to Harbor:
 LATEST="registry.nersc.gov/desi/ronitnag/database-api:latest"
-TAG="registry.nersc.gov/desi/ronitnag/database-api:3.4"
+TAG="registry.nersc.gov/desi/ronitnag/database-api:<version>"
 docker build -t $TAG . && docker tag $TAG $LATEST && docker push $TAG && docker push $LATEST 

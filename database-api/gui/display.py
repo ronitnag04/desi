@@ -1,10 +1,9 @@
 import os
 import glob
-import io
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from flask import jsonify, send_file, request, Response
+from flask import jsonify, send_file, request
 
 # DESI software
 import desispec.database.redshift as db

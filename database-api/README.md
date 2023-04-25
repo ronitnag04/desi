@@ -37,8 +37,8 @@ There is also a graphical interface for some functionality; specifically, you ca
 5) Regularly commit your changes to git, and make sure to update the version of your docker tag each time you make a major change or start working on a new feature.
 6) To push changes to the Harbor dockerhub, type the following commands into the terminal. NOTE: the url to your repo may be different
    ```
-   LATEST="registry.nersc.gov/desi/\<your username\>/database-api:latest"
-   TAG="registry.nersc.gov/desi/\<your username\>/database-api:\<version\>"
+   LATEST="registry.nersc.gov/desi/<your username>/database-api:latest"
+   TAG="registry.nersc.gov/desi/<your username>/database-api:<version>"
    docker build -t $TAG . && docker tag $TAG $LATEST && docker push $TAG && docker push $LATEST 
    ```
 7) Make sure to update the [requirements.txt](requirements.txt) file if you need to import python packages that are not available by default with python:3.10-buster image.

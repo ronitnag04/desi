@@ -67,7 +67,7 @@ def filter_index(q, options):
             q = q.limit(limit)
     else:
         if start is None and end is None:
-            q.limit(default_limit)
+            q = q.limit(default_limit)
         elif start is None or end is None:
             raise ValueError(f'Must provide both start and end parameters if limit is not provided')
         elif end <= start:
@@ -93,12 +93,21 @@ def filter_ztable(q, db_ref, options):
     if not (db_ref.__name__ == 'Zpix' or db_ref.__name__ == 'Ztile'):
         raise ValueError(f'Cannot filter table {db_ref.__name__}')
 
-    z_min = float(options.get('z_min', -1.0))
-    z_max = float(options.get('z_max', 6.0))
-    spectype = str(options.get('spectype', None))
-    subtype = str(options.get('subtype', None))
+    z_min = options.get('z_min', None)
+    if z_min:
+        z_min = float(z_min)
+    z_max = options.get('z_max', None)
+    if z_max:
+        z_max = float(z_max)
 
-    if (z_min > z_max):
+    spectype = options.get('spectype', None)
+    if spectype:
+        spectype = str(spectype)
+    subtype = options.get('subtype', None)
+    if subtype:
+        subtype = str(subtype)
+
+    if (z_min and z_max and z_min > z_max):
         raise ValueError(f'z_min({z_min}) must be less than z_max({z_max})')
     
     if (spectype and spectype not in valid_spectypes):
@@ -108,7 +117,10 @@ def filter_ztable(q, db_ref, options):
     if (spectype and subtype and spectype != 'STAR'):
         raise ValueError('Only STAR spectype currently has subtypes')
     
-    q = q.filter(db_ref.z >= z_min).filter(db_ref.z <= z_max)
+    if z_min:
+        q = q.filter(db_ref.z >= z_min)
+    if z_max:
+        q= q.filter(db_ref.z <= z_max)
     if spectype:
         q = q.filter(db_ref.spectype == spectype)
     if subtype:

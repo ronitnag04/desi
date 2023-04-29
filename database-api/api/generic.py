@@ -2,11 +2,7 @@ from flask import request, jsonify
 import json
 
 # DESI software
-import desispec.database.redshift as db
-specprod = 'fuji'
-
-# Database Setup
-postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
+from app import db
 
 # Flask Setup
 from app import app
@@ -41,6 +37,9 @@ def getColumn(table, column):
     
     @Returns:
         (SQLAlchemy column): SQL Column objects that matched string name of columns and were found in table 
+    
+    @Side Effects:
+        Throws ValueError if column can not be found in table
     """
     try:
         return getattr(table, column.lower())
@@ -54,6 +53,9 @@ def getTable(table):
     
     @Returns:
         (SQLAlchemy DeclarativeMeta): SQL Table object 
+    
+    @Side Effects:
+        Throws ValueError if table can not be found in database 
     """
     try:
         return getattr(db, table.lower().capitalize())

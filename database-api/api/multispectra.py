@@ -1,11 +1,7 @@
 # DESI software
-import desispec.database.redshift as db
+from app import db
 import desispec.io 
 import desispec.spectra
-specprod = 'fuji'
-
-# Database Setup
-postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
 
 # Flask Setup
 from app import app
@@ -55,6 +51,9 @@ def getSpectra(tile_rows):
     @Returns:
         results (desispec.spectra.Spectra):
             Stacked spectra object from the cumulative coadd spectra files for each target provided.
+          
+    @Side Effects:
+        Throws ValueError if file can not be found or if there are conflicting files
     """
     results = list()
     for targetid, tileid, lastnight, petal_loc in tile_rows:
@@ -82,7 +81,7 @@ def serveMultispectra():
     @Returns:
         temp (.fits): .fits file containing the Spectra objects for each target found matching the provided targetIds.
             Spectra objects come from the coadd .fits files from cumulative spectra data. File is immediately removed
-            from storage once delivered to user  
+            from storage once delivered to user          
     """
     params = request.args.to_dict()
     parseParams(params)
@@ -100,4 +99,3 @@ def serveMultispectra():
     temp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=True, suffix='.fits')
     desispec.io.write_spectra(temp.name, results)
     return send_file(path_or_file=temp.name, as_attachment=True)
-

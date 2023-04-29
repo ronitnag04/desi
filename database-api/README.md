@@ -50,10 +50,8 @@ There is also a graphical interface for some functionality; specifically, you ca
 - Setting up new python files:
   - New python files must import the flask app and SQLAlchemy access appropriately. 
   ```
-  import desispec.database.redshift as db
-  specprod = 'fuji'
-  postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
-  from app import app
+  from app import db    # To access database 
+  from app import app   # To add api endpoints
   ```
 -  Endpoints and Query Parameters:
    -  All endpoints current use query parameters to allow users to provide specifications. You must pass the query parameters to the parseParams method before using them with SQLAlchemy. 

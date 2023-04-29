@@ -6,12 +6,8 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from flask import jsonify, send_file, request
 
 # DESI software
-import desispec.database.redshift as db
+from app import db
 import desispec.io
-specprod = 'fuji'
-
-# Database Setup
-postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
 
 # Flask Setup
 from app import app

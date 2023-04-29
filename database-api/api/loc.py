@@ -2,11 +2,7 @@ from sqlalchemy.sql import func
 from flask import request, jsonify
 
 # DESI software
-import desispec.database.redshift as db
-specprod = 'fuji'
-
-# Database Setup
-postgresql = db.setup_db(schema=specprod, hostname='nerscdb03.nersc.gov', username='desi')
+from app import db
 
 #Flask Setup
 from app import app

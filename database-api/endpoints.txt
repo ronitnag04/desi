@@ -1,4 +1,4 @@
-api.generic.py
+api.table.py
     - Queries can be limited, and indexed with start/stop
 
     @app.route('/api/table', methods=['GET']) 

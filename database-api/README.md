@@ -80,7 +80,7 @@ There is also a graphical interface for some functionality; specifically, you ca
 ```
 📦database-api
  ┣ 📂api
- ┃ ┣ 📜generic.py
+ ┃ ┣ 📜table.py
  ┃ ┣ 📜loc.py
  ┃ ┣ 📜multispectra.py
  ┃ ┗ 📜utils.py
@@ -101,6 +101,7 @@ There is also a graphical interface for some functionality; specifically, you ca
  ┣ 📜requirements.txt
  ┗ 📜spin_setup.txt
  ```
+ Generated with [file-tree-generator](https://marketplace.visualstudio.com/items?itemName=Shinotatwu-DS.file-tree-generator) by Shinotatwu-DS
 
 ## Development Warning
 NOTE: This API is still in development. Please report any errors and bugs to ronitnag04@berkeley.edu, and also send any comments, questions, or suggestions.

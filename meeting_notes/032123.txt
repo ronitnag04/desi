@@ -1,5 +1,0 @@
-todo:
-- Send ticket for global software mount
-	- docker PYTHONPATH to access software
-	- Don't change path in python
-- get redux/spectra mount and access .fits file

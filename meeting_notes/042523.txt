@@ -1,1 +1,0 @@
-o add example endpoint urls to docstrings/endpoints.txt

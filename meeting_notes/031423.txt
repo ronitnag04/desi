@@ -1,3 +1,0 @@
-Migrate to perlmutter
-Set up bind mount for code for now, but in future add necessary files directly to docker image
-Fix dependencies (imported log and db use other libraries like astropy)

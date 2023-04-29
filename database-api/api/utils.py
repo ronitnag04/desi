@@ -9,7 +9,16 @@ from app import app
 
 
 def parseParams(params):
-    invalid_characters = [';', '-', '/', '\\', '=']
+    """
+    Recursively parses through params for invalid characters that could interfere maliciously with SQLAlchemy
+    
+    @Params:
+        params: Can be a string, dictionary, or list
+    
+    @Side Effects:
+        Throws ValueError if invalid character is found
+    """
+    invalid_characters = [';', '/', '\\', '=']
     if type(params) == str:
         if any(invalid_character in params for invalid_character in invalid_characters):
             raise ValueError(f'Illegal query parameter {params}')
@@ -59,6 +68,8 @@ def filter_index(q, options):
     
     @Returns:
         q (SQLAlchemy Query): Query object after filters have been applied
+    @Side Effects:
+        Throws ValueError if options are conflicting or invalid
     """
     limit = options.get('limit', None)
     if limit: 
@@ -106,6 +117,8 @@ def filter_ztable(q, db_ref, options):
     
     @Returns:
         q (SQLAlchemy Query): Query object after filters have been applied
+    @Side Effects:
+        Throws ValueError if options are conflicting or invalid
     """
     if not (db_ref.__name__ == 'Zpix' or db_ref.__name__ == 'Ztile'):
         raise ValueError(f'Cannot filter table {db_ref.__name__}')
